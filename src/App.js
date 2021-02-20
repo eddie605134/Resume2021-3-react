@@ -1,7 +1,10 @@
 import React from 'react';
-import Header from './common/header';
+import Header from './components/header';
 import { ContextProvider, countContext, CountReducer } from './store'
 import { createGlobalStyle } from 'styled-components'
+import { Route, Switch } from 'react-router-dom';
+import Home  from './pages/Home';
+import Resume from './pages/Resume';
 
 function App() {
   return (
@@ -9,7 +12,11 @@ function App() {
       <GlobalStyle />
       <ContextProvider context={countContext} reducer={CountReducer}>
         <Header />
-      </ContextProvider>  
+      </ContextProvider>
+      <Switch>
+        <Route path="/" exact component={Home} /> 
+        <Route path="/resume" exact component={Resume} /> 
+      </Switch>
     </div>
   );
 }

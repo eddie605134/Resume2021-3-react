@@ -1,10 +1,12 @@
 import styled from 'styled-components'
 import { theme } from "styled-tools";
-import React, { useState } from 'react'
-import { CSSTransition } from 'react-transition-group';
+import _ from 'lodash';
+import React, { useState, useCallback, useRef, useEffect } from 'react'
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import logoPic from '../../static/indexlogo.png'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEdit, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { NavLink } from 'react-router-dom'
 import { 
   SearchInfo,
   SearchInfoTitle,
@@ -15,82 +17,79 @@ import {
 
 
 
-function Header (props) {
+const Header = React.memo(  props => {
 
   const [focused, setFocused] = useState(false)
+  const navItemsRef = useRef(null)
   const [navs, setNavs] = useState([
     {
       title: '首頁',
-      class: 'left active',
+      active: false,
+      to: '/',
+      key: 1
     },
     {
-      title: '下載APP',
-      class: 'left',
+      title: '作品集',
+      active: false,
+      to: '/resume',
+      key: 2
     }
   ]);
-  const [infoItems, setInfoItems] = useState([
+
+  const NavItems = React.memo(() => {
+    return navs.map((nav, index) => (
+      <NavLink key={`nav${index}`} exact activeClassName="active" to={nav.to} >
+        <InnerNavLink>{nav.title}</InnerNavLink>
+      </NavLink>
+    ))
+  })
+
+  const [navs2, setNavs2] = useState([
     {
-      title: 'vue',
-      color: '#3FB27F'
+      title: '首頁',
+      active: false,
+      to: '/',
+      key: 1
     },
     {
-      title: 'react',
-      color: '#5ED3F3'
-    },
-    {
-      title: 'js',
-      color: '#EFD81D'
-    },
-    {
-      title: 'git',
-      color: '#E84D31'
-    },
-    {
-      title: 'TypeScript',
-      color: '#0076C6'
-    },
-    {
-      title: 'sass',
-      color: '#C76494'
-    },
+      title: '作品集',
+      active: false,
+      to: '/resume',
+      key: 2
+    }
   ]);
 
-  const NavItems = () => {
-    return navs.map((nav, index) => <NavItem className={nav.class} key={`nav${index}`}>{nav.title}</NavItem>)
-  }
-
-  const SearchInfoItems = ()=> {
-    return infoItems.map((item, index) => <SearchInfoItem key={`${index}infoItems`} hoverbg={item.color}>{item.title}</SearchInfoItem>)
+  const lightButton = (key) => {
+    // let newArr = [...navs2]
+    // newArr = newArr.map(item=> {
+    //   if (item.key === key) {
+    //     item.active = true
+    //   } else {
+    //     item.active = false
+    //   }
+    //   return item
+    // })
+    // console.log(key);
+    // setNavs2(newArr)
+    console.log(123)
   }
 
   return (
-    <HeaderWrapper>
-      <Logo/>
+    <HeaderWrapper ref={navItemsRef} color={`green`}>
+      <Logo />
+      {
+        navs2.map((nav, index) => (
+          <InnerNavLink 
+            key={`nav2${index}`} 
+            onClick={()=> lightButton()}
+            className={nav.active ? 'active' : ""}>{nav.title}</InnerNavLink>
+        ))
+        
+      }
       <Nav>
-        <NavItems />
-        <SearchWrapper>
-          <CSSTransition
-            classNames="slide"
-            in={focused}
-            timeout={200}>
-            <NavSearch 
-              className={focused ? 'focused' : ''} 
-              onFocus={()=> setFocused(true)}
-              onBlur={()=> setFocused(false)}/>
-          </CSSTransition>
-          <FontAwesomeIcon className={focused ? 'focused' : ''} icon={faSearch} />
-          {focused && 
-            <SearchInfo>
-              <SearchInfoTitle>
-                熱門搜索
-                <SearchInfoSwitch>換一批</SearchInfoSwitch>
-              </SearchInfoTitle>
-              <SearchInfoList>
-                <SearchInfoItems />
-              </SearchInfoList>
-            </SearchInfo>
-          }
-        </SearchWrapper>
+        <NavItemsWapper onClick={()=> lightButton()}>
+          <NavItems />
+        </NavItemsWapper>
       </Nav>
       <Addition>
         <Button className='reg'>
@@ -102,8 +101,7 @@ function Header (props) {
       
     </HeaderWrapper>
   )
-
-}
+}) 
 
 
 export default Header
@@ -134,9 +132,22 @@ const Nav = styled.div`
   height: 100%;
   margin: 0 auto;
   display: flex;
+  a {
+    text-decoration: none;
+  }
+  a.active {
+    div {
+      color: #61DAFB;
+    }
+  }
 `
 
-const NavItem = styled.div`
+const NavItemsWapper = styled.div`
+  display: flex;
+
+`;
+
+const InnerNavLink = styled.div`
   z-index: -1;
   line-height: 56px;
   padding: 0 15px;
@@ -201,6 +212,7 @@ const NavSearch = styled.input.attrs({
 const Addition = styled.div`
   width: 30%;
   display: flex;
+  justify-content: flex-end;
   height: 56px;
   padding: 8px 0;
 `
